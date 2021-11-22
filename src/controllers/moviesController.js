@@ -50,23 +50,9 @@ const moviesController = {
             .catch(error => res.send(error))
     },
     create: function (req, res) {
-        let errors = validationResult(req);
-
-        if(errors.isEmpty()){
-            db.Movie.create({
-                ...req.body
-            })
-            .then(response => {
-                res.redirect('/movies');
-            })
-            .catch(error => console.log(error))
-        }else{
-            res.render('moviesAdd',{
-                errors: errors.mapped(),
-                old: req.body
-            })
-        }
-         
+        db.Movie.create(req.body)
+            .then( () => res.redirect("/movies"))
+            .catch(error => res.send(error))
     },
     edit: function(req,res) {
         let pelicula = db.Movie.findByPk(req.params.id)
@@ -82,34 +68,12 @@ const moviesController = {
             .catch(error => res.send(error))
     },
     update: function (req,res) {
-        let errors = validationResult(req);
-
-        if(errors.isEmpty()){
-            db.Movie.update(
-                {
-                    ...req.body
-                },
-                {
-                    where : {
-                        id : req.params.id
-                    }
-                }
-            ).then(response => {
-                res.redirect('/movies')
+        db.Movie.update(req.body, 
+            {
+                where: { id: req.params.id }
             })
-            .catch(error => console.log(error)) 
-        }else{
-            db.Movie.findByPk(req.params.id)
-            .then(Movie =>{
-            res.render('moviesEdit',{
-                errors: errors.mapped(),
-                old: req.body,
-                Movie,
-                date: moment(Movie.release_date).format('YYYY-MM-DD')
-            })
-        })
-        }
-        
+            .then( () => res.redirect("/movies"))
+            .catch(error => res.send(error))
     },
     delete: function (req, res) {
         db.Movie.findByPk(req.params.id)
